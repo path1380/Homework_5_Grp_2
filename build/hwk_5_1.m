@@ -112,7 +112,7 @@ title('Resulting Element')
 
 % Save
 % NOTE: Output directory assume you open MATLAB in the proj home directory
-saveas(fig1, 'media/fig1', 'png')
-saveas(fig2, 'media/fig2', 'png')
-saveas(fig1, 'media/fig1', 'epsc2')
-saveas(fig2, 'media/fig2', 'epsc2')
+saveas(fig1, 'media/5-1-rs', 'png')
+saveas(fig2, 'media/5-2-rs', 'png')
+saveas(fig1, 'media/5-1-xy', 'epsc2')
+saveas(fig2, 'media/5-2-xy', 'epsc2')

@@ -79,24 +79,40 @@ end
 
 %% Plot
 % Format plot
-figure = gcf;
-figure.PaperUnits = 'inches';
-figure.PaperPosition = [0 0 12 3];
+fig1 = figure(1);
+fig1.PaperUnits = 'inches';
+fig1.PaperPosition = [0 0 4 4];
 
 % r-s square
-subplot(1,2,1)
-plot(r12, s12, 'o'), axis equal
+plot(r12, s12, '.','MarkerSize',18), axis equal
 hold on
-plot(r23, s23, 'o'), axis equal
-plot(r34, s34, 'o'), axis equal
-plot(r41, s41, 'o'), axis equal
+plot(r23, s23, '.','MarkerSize',18), axis equal
+plot(r34, s34, '.','MarkerSize',18), axis equal
+plot(r41, s41, '.','MarkerSize',18), axis equal
+xlabel('r')
+ylabel('s')
+title('Reference Square')
+xlim([-1.2, 1.2])
+ylim([-1.2, 1.2])
+
 
 % x-y quad
-subplot(1,2,2)
-plot(x12, y12, 'o'), axis equal
+fig2 = figure(2);
+fig2.PaperUnits = 'inches';
+fig2.PaperPosition = [0 0 4 4];
+plot(x12, y12, '.','MarkerSize',18), axis equal
 hold on
-plot(x23, y23, 'o'), axis equal
-plot(x34, y34, 'o'), axis equal
-plot(x41, y41, 'o'), axis equal
+plot(x23, y23, '.','MarkerSize',18), axis equal
+plot(x34, y34, '.','MarkerSize',18), axis equal
+plot(x41, y41, '.','MarkerSize',18), axis equal
+xlabel('x')
+ylabel('y')
+title('Resulting Element')
 
-saveas(gcf, 'foobar', 'png')
+
+% Save
+% NOTE: Output directory assume you open MATLAB in the proj home directory
+saveas(fig1, 'media/fig1', 'png')
+saveas(fig2, 'media/fig2', 'png')
+saveas(fig1, 'media/fig1', 'epsc2')
+saveas(fig2, 'media/fig2', 'epsc2')

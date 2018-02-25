@@ -4,6 +4,7 @@ function [x_pts,y_pts] = rs2xy(xp,yp,n_elems, disc_flag)
 %         n_pts  - number of points to discretize an edge
 %         disc_flag - discretization flag; 1 = uniform, 2 = LGL
 % Outputs: The x and y coordinates of the output points
+%          The Jacobian of the mapping 
 %% Bilinear mapping
 % Find a bilinear mapping from (r,s) e [-1,1]^2 into a straight sided quad
 % Assume bilinear eqn of the form
@@ -82,3 +83,4 @@ end
 
 x_pts = [x12'; x23'; x34'; x41'];
 y_pts = [y12'; y23'; y34'; y41'];
+

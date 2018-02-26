@@ -1,4 +1,4 @@
-function [x_pts,y_pts] = rs2xy(xp,yp,n_elems, disc_flag)
+function [x_pts,y_pts,jac_arr] = rs2xy(xp,yp,n_elems, disc_flag)
 %Maps the reference square [-1,1]^2 to a quad on the x-y plane
 % Inputs: xp, yp - x and y coordinates of the corners, number as below
 %         n_pts  - number of points to discretize an edge
@@ -83,4 +83,24 @@ end
 
 x_pts = [x12'; x23'; x34'; x41'];
 y_pts = [y12'; y23'; y34'; y41'];
+r_pts = [r12; r23; r34; r41];
+s_pts = [s12; s23; s34; s41];
 
+%% Calculate Jacobian
+% rs subelements forms an orthogonal grid
+[r_sub,s_sub] = meshgrid(r_pts(1,:),s_pts(4,:));
+
+% Iterate over subelements
+jac_arr = zeros([n_elems, n_elems]);
+for i = 1:n_elems
+    for j = 1:n_elems
+        % Calculate Jacobian for subelement based off UL corner
+        J11 = x_coeffs(2) + x_coeffs(4)*s_sub(i,j);
+        J12 = x_coeffs(3) + x_coeffs(4)*r_sub(i,j);
+        J21 = y_coeffs(2) + y_coeffs(4)*s_sub(i,j);
+        J22 = y_coeffs(3) + y_coeffs(4)*r_sub(i,j);
+        
+        J = [J11 J12; J21 J22];
+        jac_arr(i,j) = norm(J);
+    end
+end

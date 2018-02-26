@@ -9,15 +9,19 @@ r = linspace(-1,1,n_r);
 s = fliplr(linspace(-1,1,n_s));
 [R,S] = meshgrid(r,s);
 
-% Perturb grid
-Rp = R + rand(n_r,n_s)/25; 
-Sp = S + rand(n_r,n_s)/25;
+% % Perturb grid
+% Rp = R + rand(n_r,n_s)/25; 
+% Sp = S + rand(n_r,n_s)/25;
+% 
+% % Clean up boundaries
+% Rp(:,1) = -1;
+% Rp(:,n_r) = 1;
+% Sp(1,:) = 1;
+% Sp(n_s,:) = -1;
 
-% Clean up boundaries
-Rp(:,1) = -1;
-Rp(:,n_r) = 1;
-Sp(1,:) = 1;
-Sp(n_s,:) = -1;
+% Temporarily keep grid uniform
+Rp = R;
+Sp = S;
 
 plot(Rp,Sp, 'b-x', Rp', Sp', 'b-x')
 
@@ -40,8 +44,21 @@ for i = 1:n_r-1
         lr_y = Sp(i+1,j+1);
         yp = [ll_y lr_y ur_y ul_y];
 
-        % Pull info from rs domain
-        [x_pts, y_pts] = rs2xy(xp,yp,n_sub_elems,1);
+        % Pull discretization info
+        [x_pts, y_pts, jac_arr] = rs2xy(xp,yp,n_sub_elems,1);
         
+%         % Calculate Jacobian on each subelement
+%         for m = 1:n_r-1
+%             for n = 1:n_s-1
+%                 delx = x_pts(1,m+1) - x_pts(1,m);
+%                 dely = y_pts(m+1,n) - y_pts(m,n);
+%                 delr = r_pts(1,m) - r_pts(1,m);
+%                 dels = s_pts(m+1,n) - s_pts(m,n);
+%                 
+%                 J = [delx/delr delx/dels; dely/delr dely/dels];
+%                 normJ = norm(J);
+%                 
+%             end
+%         end
     end
 end

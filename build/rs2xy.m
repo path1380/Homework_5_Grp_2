@@ -1,4 +1,4 @@
-function [x_pts,y_pts,jac_arr] = rs2xy(xp,yp,n_elems, disc_flag)
+function [x_pts,y_pts,jac_arr, dA_arr] = rs2xy(xp,yp,n_elems, disc_flag)
 %Maps the reference square [-1,1]^2 to a quad on the x-y plane
 % Inputs: xp, yp - x and y coordinates of the corners, number as below
 %         n_pts  - number of points to discretize an edge
@@ -39,6 +39,7 @@ if disc_flag == 1
     s41 = linspace(1,-1,n_pts);
 elseif disc_flag == 2
     [lgl_x, lgl_w, lgl_P] = lglnodes(n_elems);   % LGL discretization
+    lgl_w_arr = lgl_w*lgl_w';
 
     r12 = fliplr(lgl_x');
     s12 = -1*ones(1,n_pts);
@@ -92,6 +93,7 @@ s_pts = [s12; s23; s34; s41];
 
 % Iterate over subelements
 jac_arr = zeros([n_elems, n_elems]);
+dA_arr = zeros([n_elems, n_elems]);
 for i = 1:n_elems
     for j = 1:n_elems
         % Calculate Jacobian for subelement based off UL corner
@@ -102,5 +104,6 @@ for i = 1:n_elems
         
         J = [J11 J12; J21 J22];
         jac_arr(i,j) = norm(J);
+        dA_arr(i,j) = jac_arr(i,j)*lgl_w_arr(i,j);
     end
 end

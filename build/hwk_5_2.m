@@ -1,13 +1,13 @@
 %% Homework 5, Part 2
 clc; close all; clear all;
 %% Create perturbed grid
-n_r = 5;
-n_s = n_r;
+n_x = 5;
+n_y = n_x;
 
 % Uniform grid
-r = linspace(-1,1,n_r);
-s = fliplr(linspace(-1,1,n_s));
-[R,S] = meshgrid(r,s);
+x = linspace(-1,1,n_x);
+y = fliplr(linspace(-1,1,n_y));
+[X,Y] = meshgrid(x,y);
 
 % % Perturb grid
 % Rp = R + rand(n_r,n_s)/25; 
@@ -20,32 +20,32 @@ s = fliplr(linspace(-1,1,n_s));
 % Sp(n_s,:) = -1;
 
 % Temporarily keep grid uniform
-Rp = R;
-Sp = S;
+Xp = X;
+Yp = Y;
 
-plot(Rp,Sp, 'b-x', Rp', Sp', 'b-x')
+plot(Xp,Yp, 'b-x', Xp', Yp', 'b-x')
 
 % Iterate over elements on grid
 % Note: We take the small elements on the rs grid as the new element on xy
 %             Call the discretization of one element a subelement
 n_sub_elems = 5;
-for i = 1:n_r-1
-    for j = 1:n_s-1
+for i = 1:n_x-1
+    for j = 1:n_y-1
         % Define corners
-        ul_x = Rp(i,j);
-        ur_x = Rp(i,j+1);
-        ll_x = Rp(i+1,j);
-        lr_x = Rp(i+1,j+1);
+        ul_x = Xp(i,j);
+        ur_x = Xp(i,j+1);
+        ll_x = Xp(i+1,j);
+        lr_x = Xp(i+1,j+1);
         xp = [ll_x lr_x ur_x ul_x];
         
-        ul_y = Sp(i,j);
-        ur_y = Sp(i,j+1);
-        ll_y = Sp(i+1,j);
-        lr_y = Sp(i+1,j+1);
+        ul_y = Yp(i,j);
+        ur_y = Yp(i,j+1);
+        ll_y = Yp(i+1,j);
+        lr_y = Yp(i+1,j+1);
         yp = [ll_y lr_y ur_y ul_y];
 
         % Pull discretization info
-        [x_pts, y_pts, jac_arr] = rs2xy(xp,yp,n_sub_elems,1);
+        [x_pts, y_pts, jac_arr, dA_arr] = rs2xy(xp,yp,n_sub_elems,2);
         
 %         % Calculate Jacobian on each subelement
 %         for m = 1:n_r-1

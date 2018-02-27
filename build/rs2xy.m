@@ -92,10 +92,10 @@ s_pts = [s12; s23; s34; s41];
 [r_sub,s_sub] = meshgrid(r_pts(1,:),s_pts(4,:));
 
 % Iterate over subelements
-jac_arr = zeros([n_elems, n_elems]);
-dA_arr = zeros([n_elems, n_elems]);
-for i = 1:n_elems
-    for j = 1:n_elems
+jac_arr = zeros([n_pts, n_pts]);
+dA_arr = zeros([n_pts, n_pts]);
+for i = 1:n_pts
+    for j = 1:n_pts
         % Calculate Jacobian for subelement based off UL corner
         J11 = x_coeffs(2) + x_coeffs(4)*s_sub(i,j);
         J12 = x_coeffs(3) + x_coeffs(4)*r_sub(i,j);

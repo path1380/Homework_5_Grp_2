@@ -92,6 +92,6 @@ for i = 1:n_pts
         
         J = [J11 J12; J21 J22];
         jac_arr(i,j) = det(J);
-        dA_arr(i,j) = jac_arr(i,j)*lgl_w_arr(i,j);
+        dA_arr(i,j) = abs(jac_arr(i,j)*lgl_w_arr(i,j));
     end
 end

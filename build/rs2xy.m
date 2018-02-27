@@ -1,4 +1,4 @@
-function [x_pts,y_pts,jac_arr, dA_arr] = rs2xy(xp,yp,n_elems, disc_flag)
+function [x_pts,y_pts,jac_arr, dA_arr] = rs2xy(xp,yp,n_elems)
 %Maps the reference square [-1,1]^2 to a quad on the x-y plane
 % Inputs: xp, yp - x and y coordinates of the corners, number as below
 %         n_pts  - number of points to discretize an edge
@@ -28,30 +28,18 @@ y_coeffs = inv(A)*yp';
 % Discretize rs square
 n_pts = n_elems+1;
 
-if disc_flag == 1
-    r12 = linspace(-1,1,n_pts);
-    s12 = linspace(-1,-1,n_pts);
-    r23 = linspace(1,1,n_pts);
-    s23 = linspace(-1,1,n_pts);
-    r34 = linspace(1,-1,n_pts);
-    s34 = linspace(1,1,n_pts);
-    r41 = linspace(-1,-1,n_pts);
-    s41 = linspace(1,-1,n_pts);
-elseif disc_flag == 2
-    [lgl_x, lgl_w, lgl_P] = lglnodes(n_elems);   % LGL discretization
-    lgl_w_arr = lgl_w*lgl_w';
+[lgl_x, lgl_w, lgl_P] = lglnodes(n_elems);   % LGL discretization
+lgl_w_arr = lgl_w*lgl_w';
 
-    r12 = fliplr(lgl_x');
-    s12 = -1*ones(1,n_pts);
-    r23 = 1*ones(1,n_pts);
-    s23 = fliplr(lgl_x');
-    r34 = lgl_x';
-    s34 = 1*ones(1,n_pts);
-    r41 = -1*ones(1,n_pts);
-    s41 = lgl_x';
-else
-    disp('Invalid disc_flag!')
-end
+r12 = fliplr(lgl_x');
+s12 = -1*ones(1,n_pts);
+r23 = 1*ones(1,n_pts);
+s23 = fliplr(lgl_x');
+r34 = lgl_x';
+s34 = 1*ones(1,n_pts);
+r41 = -1*ones(1,n_pts);
+s41 = lgl_x';
+
 
 % Discretize xy quadrilateral
 x12 = zeros(numel(r12), 1);
@@ -103,7 +91,7 @@ for i = 1:n_pts
         J22 = y_coeffs(3) + y_coeffs(4)*r_sub(i,j);
         
         J = [J11 J12; J21 J22];
-        jac_arr(i,j) = norm(J);
+        jac_arr(i,j) = det(J);
         dA_arr(i,j) = jac_arr(i,j)*lgl_w_arr(i,j);
     end
 end

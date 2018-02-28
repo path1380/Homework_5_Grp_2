@@ -29,7 +29,7 @@ module quad_element
      !  So side 2 has r = -1, side 3 has s = -1, etc.
      !
      ! The Gordon-Hall mapping used to compute the metric
-     ! assumes down->up and left->right orientaiton of the sides.
+     ! assumes down->up and left->right orientation of the sides.
      !
      !
      !%% Geometric information

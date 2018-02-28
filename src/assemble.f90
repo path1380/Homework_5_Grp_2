@@ -7,7 +7,7 @@ subroutine assemble(qd,nint,P,DERP,weights)
   type(quad) :: qd
   real(kind=dp) :: P(0:nint,0:q),DERP(0:nint,0:q) ! Legendre and derivative of L. at quadrature nodes
   real(kind=dp) :: fint(0:nint),weights(0:nint)
-  integer :: i,j,k,l,iy,m_u,m_v,row,col
+  integer :: i,j,k,l,iy,row,col
   !
   ! This routine assembles the matrices M and S in the system
   !
@@ -70,4 +70,3 @@ subroutine assemble(qd,nint,P,DERP,weights)
   end do
 
 end subroutine assemble
-a

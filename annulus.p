@@ -28,4 +28,6 @@ for($q = 2;$q <= $num_quad_max; $q = $q+1){
 	system("make -f Makefile_main clean");
 }
 system("matlab \"$@\" -nosplash -nodisplay < build/GHannulus.m");
+system("rm output.txt");
+
 exit

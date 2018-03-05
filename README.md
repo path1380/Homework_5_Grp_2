@@ -16,8 +16,8 @@
   1. ~~Program the Gordon-Hall mapping template~~
   2. ~~Generalize Gordon-Hall for curved edges~~
   3. ~~Compute area of half annulus~~
-* Part 5
-  1. Compute area using line integrals
+* ~~Part 5~~
+  1. ~~Compute area using line integrals~~
 * Part 6
   1. Find 2D coefficients for approximating a function using Legendre fcns (ie: Hwk 3 in 2D)
 * Part 7

@@ -11,7 +11,7 @@ program annulus_GH
 
   ! list of all elements
   type(quad), dimension(:), allocatable :: qds
-  integer :: i,j,k,ind
+  integer :: i,j,ind, n_gll
   integer :: num_quads
   ! Quadrature
   real(kind=dp) :: weights(0:nint), xnodes(0:nint),diffmat(0:nint,0:nint)
@@ -21,6 +21,7 @@ program annulus_GH
 
   ! Weights for quadrature and differentiation on the elements.
   call lglnodes(xnodes,weights,nint)
+  n_gll = nint + 1
 
   ! Differentiation matrix for the metric.
   do i = 0,nint
@@ -63,7 +64,7 @@ program annulus_GH
       ind = j + nt*i + 1
       theta_start = tvec(j)
       theta_end = tvec(j+1)
-      call allocate_quad(qds(ind),q,nint+1,2)
+      call allocate_quad(qds(ind),q,n_gll,2)
       !define corners of quad
       qds(ind)%xy(1,:) = (/r_end*COS(theta_start), r_end*SIN(theta_start)/)
       qds(ind)%xy(2,:) = (/r_end*COS(theta_end), r_end*SIN(theta_end)/)
@@ -98,15 +99,22 @@ program annulus_GH
     call set_metric(qds(i),xnodes,diffmat,nint)
   end do
 
-
-  !Now we approximate the area of the annulus
+  !Now we approximate the area of the annulus via 
+  !line integrals on the boundary of each element
   area_approx = 0.0_dp
-  do i = 1,num_quads
-    do j = 0,nint
-      do k = 0,nint
-        area_approx = area_approx + qds(i)%jac(k+1,j+1)*weights(k)*weights(j)
-      end do
-    end do
+  do i = 1,num_quads        
+      !FACE 1
+      area_approx = area_approx + 0.5_dp*sum(weights*(qds(i)%x(:,n_gll)*qds(i)%nx_in(:,1)&
+                  + qds(i)%y(:,n_gll)*qds(i)%ny_in(:,1))*qds(i)%dl_face(:,1))
+      !FACE 2
+      area_approx = area_approx + 0.5_dp*sum(weights*(qds(i)%x(1,:)*qds(i)%nx_in(:,2)&
+                  + qds(i)%y(1,:)*qds(i)%ny_in(:,2))*qds(i)%dl_face(:,2))  
+      !FACE 3
+      area_approx = area_approx + 0.5_dp*sum(weights*(qds(i)%x(:,1)*qds(i)%nx_in(:,3)&
+                  + qds(i)%y(:,1)*qds(i)%ny_in(:,3))*qds(i)%dl_face(:,3)) 
+      !FACE 4
+      area_approx = area_approx + 0.5_dp*sum(weights*(qds(i)%x(n_gll,:)*qds(i)%nx_in(:,4)&
+                  + qds(i)%y(n_gll,:)*qds(i)%ny_in(:,4))*qds(i)%dl_face(:,4))  
   end do
 
   write(*,*) ABS(area_approx - true_val)
@@ -114,9 +122,11 @@ program annulus_GH
   do i =1,num_quads
     call deallocate_quad(qds(i))
   end do
+
   DEALLOCATE(qds)
   DEALLOCATE(rvec)
   DEALLOCATE(tvec)
+
 contains
 
 !!$subroutine set_initial_data(qd,nint)
@@ -195,20 +205,39 @@ contains
            x_coord_elem,y_coord_elem,Diffmat,nint)
       ! Compute normals and line elements on all sides
 
-    
-      ! ! Face 1. corresponds to s = 1 and r \in [-1,1].
-      ! ! Thus the normal is (s_x,s_y) / \sqrt(s_x^2+s_y^2).
-      ! ! The line integral element is dl = \sqrt(x_r^2+y_r^2)| = J * \sqrt(s_x^2+s_y^2).
-      ! ! Compute the norm of the metric.
-      ! qd%dl_face(1:nint,1) = sqrt(qd%sx(1:nint,nint)**2+qd%sy(1:nint,nint)**2)
-      ! ! Compute outward pointing unit normal.
-      ! qd%nx_in(1:nint,1)   = qd%sx(1:nint,nint)/qd%dl_face(1:nint,1)
-      ! qd%ny_in(1:nint,1)   = qd%sy(1:nint,nint)/qd%dl_face(1:nint,1)
-      ! ! Scale by Jacobian to get the metric.
-      ! qd%dl_face(1:nint,1) = qd%dl_face(1:nint,1)*qd%jac(1:nint,nint)
-      
-      ! write
+      ! Face 1. corresponds to s = 1 and r \in [-1,1].
+      ! Thus the normal is (s_x,s_y) / \sqrt(s_x^2+s_y^2).
+      ! The line integral element is dl = \sqrt(x_r^2+y_r^2)| = J * \sqrt(s_x^2+s_y^2).
+      qd%dl_face(1:n_gll,1) = sqrt(qd%sx(1:n_gll,n_gll)**2+qd%sy(1:n_gll,n_gll)**2)
+      ! Compute outward pointing unit normal.
+      qd%nx_in(1:n_gll,1)   = qd%sx(1:n_gll,n_gll)/qd%dl_face(1:n_gll,1)
+      qd%ny_in(1:n_gll,1)   = qd%sy(1:n_gll,n_gll)/qd%dl_face(1:n_gll,1)
+      ! Scale by Jacobian to get the metric.
+      qd%dl_face(1:n_gll,1) = qd%dl_face(1:n_gll,1)*qd%jac(1:n_gll,n_gll)
 
+      ! Face 2. corresponds to r = -1 and s \in [-1,1].
+      ! Thus the normal is (-r_x,-r_y) / \sqrt(r_x^2+r_y^2).
+      ! The line integral element is dl = \sqrt(x_s^2+y_s^2)| = J * \sqrt(r_x^2+r_y^2).
+      qd%dl_face(1:n_gll,2) = sqrt(qd%rx(1,:)**2+qd%ry(1,:)**2)
+      qd%nx_in(1:n_gll,2)   = -1.0_dp*qd%rx(1,:)/qd%dl_face(1:n_gll,2)
+      qd%ny_in(1:n_gll,2)   = -1.0_dp*qd%ry(1,:)/qd%dl_face(1:n_gll,2)
+      qd%dl_face(1:n_gll,2) = qd%dl_face(1:n_gll,2)*qd%jac(1,:)
+
+      ! Face 3. corresponds to s = -1 and r \in [-1,1].
+      ! Thus the normal is (-s_x,-s_y) / \sqrt(s_x^2+s_y^2).
+      ! The line integral element is dl = \sqrt(x_r^2+y_r^2)| = J * \sqrt(s_x^2+s_y^2).
+      qd%dl_face(1:n_gll,3) = sqrt(qd%sx(1:n_gll,1)**2+qd%sy(1:n_gll,1)**2)
+      qd%nx_in(1:n_gll,3)   = -1.0_dp*qd%sx(1:n_gll,1)/qd%dl_face(1:n_gll,3)
+      qd%ny_in(1:n_gll,3)   = -1.0_dp*qd%sy(1:n_gll,1)/qd%dl_face(1:n_gll,3)
+      qd%dl_face(1:n_gll,3) = qd%dl_face(1:n_gll,3)*qd%jac(:,1)
+
+      ! Face 4. corresponds to r = 1 and s \in [-1,1].
+      ! Thus the normal is (r_x,r_y) / \sqrt(r_x^2+r_y^2).
+      ! The line integral element is dl = \sqrt(x_s^2+y_s^2)| = J * \sqrt(r_x^2+r_y^2).
+      qd%dl_face(1:n_gll,4) = sqrt(qd%rx(n_gll,:)**2+qd%ry(n_gll,:)**2)
+      qd%nx_in(1:n_gll,4)   = qd%rx(n_gll,:)/qd%dl_face(1:n_gll,4)
+      qd%ny_in(1:n_gll,4)   = qd%ry(n_gll,:)/qd%dl_face(1:n_gll,4)
+      qd%dl_face(1:n_gll,4) = qd%dl_face(1:n_gll,4)*qd%jac(n_gll,:)
     end subroutine set_metric
 
   subroutine compute_curve_metric(r_x,s_x,r_y,s_y,jac,X,Y,D,n)

@@ -3,7 +3,7 @@ module problemsetup
   implicit none
   integer, parameter :: nvar = 2
   integer, parameter :: q = 1
-  integer, parameter :: nint = 10
+  integer, parameter :: nint = 4
   !number of intervals in theta and r
   integer, parameter :: nt = 2, nr = 2
   real(kind = dp), parameter :: CFL = 0.1d0

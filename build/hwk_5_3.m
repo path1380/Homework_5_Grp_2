@@ -55,3 +55,6 @@ figure
 plot(nt_arr, error_arr)
 hold on
 plot(linspace(10,100), linspace(10,100).^(-2), '--')
+legend('error', 'min(n_t, n_r)^2')
+xlabel('min(n_t, n_r)')
+title('Error of Half Annulus Area') 

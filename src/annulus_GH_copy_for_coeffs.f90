@@ -20,7 +20,7 @@ program annulus_GH_copy_for_coeffs
   real(kind=dp), dimension(:), allocatable :: rvec, tvec
   real(kind=dp) :: area_approx, true_val
   integer :: q_test_init, n_gll_test_init
-  real(kind=dp), dimension(0:nint,0:nint) :: uhat_test_init, approximation, exact_val, error
+  real(kind=dp), dimension(0:nint,0:nint) :: uhat_test_init, approximation, exact_val, error, leg_mat
 
   q_test_init = nint
   n_gll_test_init = nint
@@ -135,13 +135,19 @@ program annulus_GH_copy_for_coeffs
   quad_test_init%bc_type(:) = (/10,10,10,10/)
   call set_initial_data(quad_test_init, n_gll_test_init, uhat_test_init)
   
+  do i=0,nint
+     do j=0,nint
+        leg_mat(i,j) = legendre(xnodes(i),j)
+     end do
+  end do
+
   !Calculating the error
   do i=0,nint
      do j=0,nint
         approximation(i,j) = 0
         do k=0,nint
            do l=0,nint
-              approximation(i,j) = approximation(i,j) + (uhat_test_init(k,l)*legendre(xnodes(j),k)*legendre(xnodes(i),l))
+              approximation(i,j) = approximation(i,j) + (uhat_test_init(k,l)*leg_mat(j,k)*leg_mat(i,l))
            end do
         end do
         exact_val(i,j) = init_u(quad_test_init%x(i,j),quad_test_init%y(i,j))
@@ -163,13 +169,14 @@ contains
     real(kind=dp), dimension(0:nint,0:nint) :: uhat_2D
     real(kind=dp), dimension(0:nint) :: xnodes
     real(kind=dp), dimension(0:nint) :: weights
-    real(kind=dp), dimension(0:nint,0:nint) :: diffmat, x, y
+    real(kind=dp), dimension(0:nint,0:nint) :: diffmat, x, y, leg_mat
     integer :: i,j,k,l
 
     call lglnodes(xnodes, weights, nint)
 
     do i=0,nint
        do j=0,nint
+          leg_mat(i,j) = legendre(xnodes(i),j)
           if (i .eq. j) then
              diffmat(i,j) = 1
           else
@@ -188,7 +195,7 @@ contains
           do k=0,nint
              do l=0,nint
                 uhat_2D(i,j) = uhat_2D(i,j) + &
-                     (weights(k)*weights(l)*legendre(xnodes(k),i)*legendre(xnodes(l),j)*init_u(x(l,k),y(l,k)))
+                     (weights(k)*weights(l)*leg_mat(k,i)*leg_mat(l,j)*init_u(x(l,k),y(l,k)))
              end do
           end do
           uhat_2D(i,j) = uhat_2D(i,j)*((2.0_dp*i)+1)*((2.0_dp*j)+1)/4

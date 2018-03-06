@@ -51,10 +51,13 @@ for grd_spacing = 1:sample_grd_spacing
     error_arr(grd_spacing) = 3/8*pi - A_tot;
 end
 
-figure
+% Save error figure
+err_fig = figure;
 plot(nt_arr, error_arr)
 hold on
-plot(linspace(10,100), linspace(10,100).^(-2), '--')
-legend('error', 'min(n_t, n_r)^2')
+plot(linspace(10,100), 2.5*linspace(10,100).^(-2), '--')
+legend('error', '2.5*min(n_t, n_r)^2')
 xlabel('min(n_t, n_r)')
-title('Error of Half Annulus Area') 
+title('Half Annulus Area Error - Straight Sided Elements') 
+saveas(err_fig,'media/5-3-error','png')
+saveas(err_fig,'media/5-3-error','epsc')

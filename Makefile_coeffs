@@ -6,14 +6,14 @@ SRC = src
 BIN = bin
 F90FLAGS = -fbounds-check -Wall -fbacktrace -g
 FFLAGS = -O3
-_OBJECTS = type_defs.o quad_element.o legendre_module.o problemsetup.o assemble.o weights.o annulus_GH_copy_for_coeffs.o
+_OBJECTS = type_defs.o quad_element.o legendre_module.o problemsetup.o assemble.o weights.o coeff2d.o
 OBJECTS = $(patsubst %,$(BIN)/%,$(_OBJECTS))
-EXECUTABLE = annulus_GH_copy_for_coeffs.x
+EXECUTABLE = coeff2d.x
 # EXECUTABLE = test_pis.x
 
 .PHONY: clean
 $(EXECUTABLE): $(OBJECTS)
-	$(LD) -o $(EXECUTABLE) $(OBJECTS) -I$(BIN)/
+	$(LD) -o $(EXECUTABLE) $(OBJECTS) -I$(BIN)/ -llapack
 $(BIN)/%.o : $(SRC)/%.f90
 	$(FC) $(F90FLAGS) -c -o $@ $< -J$(BIN)/
 $(BIN)/%.o : $(SRC)/%.f

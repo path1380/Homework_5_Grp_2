@@ -11,10 +11,11 @@ program coeff2d
 
   ! list of all elements
   type(quad) :: qds
-  integer :: i,j,ind, n_gll
+  integer :: i,j,ind, n_gll, k, l
   integer :: num_quads
   real(kind=dp) :: weights(0:nint), xnodes(0:nint),diffmat(0:nint,0:nint),&
                    leg_mat(0:nint,0:q),leg_der_mat(0:nint,0:q),BFWeights(0:nint,2)
+  real(kind=dp) :: true_sol(0:nint,0:nint), approx_sol(0:nint,0:nint)
 
   num_quads = 1
   ! Weights for quadrature and differentiation on the elements.
@@ -58,6 +59,25 @@ program coeff2d
   call set_metric(qds,xnodes,diffmat,nint)
   call set_initial_data(qds)
 
+  !build true solution on the given grid
+  do j = 1,n_gll
+    do i =1,n_gll
+      true_sol(i-1,j-1) = init_u(qds%x(i,j),qds%y(i,j))
+
+      !build approximation
+      approx_sol(i-1,j-1) = 0.0_dp
+      do k=0,q
+        do l=0,q 
+          approx_sol(i-1,j-1) = approx_sol(i-1,j-1) + qds%u(k,l,nvar)*leg_mat(i-1,k)*leg_mat(j-1,l)
+        end do 
+      end do 
+    end do 
+  end do
+
+  write(*,*) MAXVAL(ABS(true_sol - approx_sol))
+  ! write(*,*) true_sol 
+  !evaluate the approximation on the given grid
+
   call deallocate_quad(qds)
 
 contains
@@ -83,14 +103,14 @@ contains
       use quad_element
       use problemsetup
       implicit none
-      type(quad) :: qd
-      integer :: i, j, k, l, n_gll, row, col, m, n, i1, i2
+      type(quad), intent(inout) :: qd
+      integer :: i, j, n_gll, row, i1, i2
       integer :: INFO
       real(kind=dp) :: u_loc(0:nint,0:nint)
       real(kind=dp) :: b(0:(q+1)**2 - 1)
 
       n_gll = nint + 1
-
+      b(:) = 0.0_dp
       !evaluate initial condition at nodes
       do j = 1,n_gll
         do i =1,n_gll
@@ -112,17 +132,22 @@ contains
       end do
 
       !build matrices 
-      CALL assemble(qd,nint,leg_mat,leg_der_mat,weights) 
+      CALL assemble(qd,nint,leg_mat,weights) 
       !here we'll need to backsolve the matrix to find the coefficients
 
+      !build the LU decomposition of the mass matrix and 
+      !backsolve for the coefficients
       call DGETRF((q+1)**2,(q+1)**2,qd%M,(q+1)**2,qd%IPIV,INFO)
       call DGETRS('N',(q+1)**2,1,qd%M,(q+1)**2,qd%IPIV,b,(q+1)**2,INFO)
-      !Need to reshape and overwrite our quad with the coefficients
-      
+      !Reshape and overwrite our quad with the coefficients
+      do j = 0,q
+        do i =0,q 
+          qd%u(i,j,nvar) = b(i + j*(q+1))
+        end do
+      end do
+
+
     end subroutine set_initial_data
-
-
-!!! DEAA, this is left as is! Rewrite to fit with quadrature points 0:nint....
 
     subroutine set_metric(qd,xnodes,diffmat,nint)
       ! ========================================================
@@ -268,33 +293,25 @@ contains
 
     end subroutine compute_curve_metric
 
-    subroutine assemble(qd,nint,P,DERP,weights)
+    subroutine assemble(qd,nint,P,weights)
       use type_defs
       use quad_element
       use problemsetup, only : q
       implicit none
       integer :: nint
       type(quad) :: qd
-      real(kind=dp) :: P(0:nint,0:q),DERP(0:nint,0:q) ! Legendre and derivative of L. at quadrature nodes
+      real(kind=dp) :: P(0:nint,0:q)! Legendre polys at quadrature nodes
+      !real(kind=dp) :: DERP(0:nint,0:q) ! Legendre and derivative of L. at quadrature nodes
       real(kind=dp) :: fint(0:nint),weights(0:nint)
       integer :: i,j,k,l,iy,row,col
       !
-      ! This routine assembles the matrices M and S in the system
-      !
-      ! M*u_t + Su = "flux-stuff",
+      ! This routine assembles the mass matrix M
       !
       ! We assume the modes are ordered in column major order with the "1" coordinate first:
       ! u_00,1, u_10,1, u_20,1,..., u_01,1,..., u_qq,1, u_00,2, u_10,2, u_20,2,..., u_01,2,..., u_qq,2....
       !
-      ! Assemble Mass and Stiffness matrices
-      ! i,k is index in r. j,l is index in s.
-      ! i,j for phi
-      ! k,l for u
-      !
-      ! M = [ \int \phi_{i,j} v_{k,l}
+
       qd%M(:,:) = 0.0_dp
-      ! First diagonal block
-      ! Row index (eq. number)
       do j = 0,q
        do i = 0,q
         row = i + j*(q+1)
@@ -313,33 +330,6 @@ contains
         end do
        end do
       end do
-
-      !this is to compute the S matrix for differentiation!
-      ! qd%S(:,:) = 0.d0
-      ! ! S. DEAA this is a \phi_x u_x term...
-      ! do j = 0,q ! 2-dir phi
-      !  do i = 0,q ! 1-dir
-      !   row = i+1 + j*(q+1)
-      !   do l = 0,q ! 2-dir u
-      !    do k = 0,q ! 1-dir
-      !     col = k + 1 + l*(q+1)
-      !     ! Recall w_1 = r_1 w_r + s_1 w_s
-      !     do iy = 1,nint
-      !      fint(iy) = sum(weights*&
-      !        qd%jac(:,iy)*&
-      !        (qd%rx(:,iy)*DERP(:,i)*P(iy,j)&
-      !        +qd%sx(:,iy)*P(:,i)*DERP(iy,j))*&
-      !        (qd%rx(:,iy)*DERP(:,k)*P(iy,l)&
-      !        +qd%sx(:,iy)*P(:,k)*DERP(iy,l)))
-      !     end do
-      !     qd%S(row,col) = sum(weights*fint)
-      !     ! Also, w_y = r_y w_r +s_y w_s
-      !     ! DEEA, not added yet...
-      !    end do
-      !   end do
-      !  end do
-      ! end do
-
     end subroutine assemble
 
 

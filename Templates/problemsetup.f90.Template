@@ -1,8 +1,8 @@
 module problemsetup
   use type_defs
   implicit none
-  integer, parameter :: nvar = 2
-  integer, parameter :: q = 1
+  integer, parameter :: nvar = 1
+  integer, parameter :: q = QQQQ
   integer, parameter :: nint = NNNN
   !number of intervals in theta and r
   integer, parameter :: nt = NTNT, nr = NRNR

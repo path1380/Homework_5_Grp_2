@@ -1,7 +1,9 @@
-program coeff2d
-!This function attempts to numerically compute the area of the
-!half annulus via a Gordon-Hall mapping from the reference 
-!square [-1,1]^2 to a curvilinear quadrilateral.
+program derivative2d
+!This program computes the coefficients for a 
+!given function:
+!       f(x,y) = COS(2*pi*x)*SIN(2*pi*y)
+!and then computes an approximation to the 
+!partial derivatives.
 
   use type_defs
   use quad_element
@@ -15,7 +17,9 @@ program coeff2d
   integer :: num_quads
   real(kind=dp) :: weights(0:nint), xnodes(0:nint),diffmat(0:nint,0:nint),&
                    leg_mat(0:nint,0:q),leg_der_mat(0:nint,0:q),BFWeights(0:nint,2)
-  real(kind=dp) :: true_sol(0:nint,0:nint), approx_sol(0:nint,0:nint)
+  real(kind=dp) :: sol_x(0:nint,0:nint), sol_y(0:nint,0:nint)
+  real(kind=dp) :: approx_sol_x(0:nint,0:nint), approx_sol_y(0:nint,0:nint)
+  real(kind = dp), parameter :: pi = acos(-1.0_dp)
 
   num_quads = 1
   ! Weights for quadrature and differentiation on the elements.
@@ -46,11 +50,6 @@ program coeff2d
   qds%xy(2,:) = (/-1.0_dp, 1.0_dp/)
   qds%xy(3,:) = (/-1.0_dp, -1.0_dp/)
   qds%xy(4,:) = (/1.0_dp, -1.0_dp/)
-  !define corners of quad
-  ! qds%xy(1,:) = (/0.3_dp, 2.0_dp/)
-  ! qds%xy(2,:) = (/-0.3_dp, 1.0_dp/)
-  ! qds%xy(3,:) = (/-1.0_dp, -2.0_dp/)
-  ! qds%xy(4,:) = (/0.1_dp, -1.0_dp/)
   qds%my_ind = ind 
   qds%bc_type(:) = 10
 
@@ -59,24 +58,31 @@ program coeff2d
   call set_metric(qds,xnodes,diffmat,nint)
   call set_initial_data(qds)
 
-  !build true solution on the given grid
+  !build approximations to derivatives
   do j = 1,n_gll
     do i =1,n_gll
-      true_sol(i-1,j-1) = init_u(qds%x(i,j),qds%y(i,j))
+      sol_x(i-1,j-1) = 2.0_dp*pi*COS(2.0_dp*pi*qds%x(i,j))*SIN(2.0_dp*pi*qds%y(i,j))
+      sol_y(i-1,j-1) = 2.0_dp*pi*COS(2.0_dp*pi*qds%y(i,j))*SIN(2.0_dp*pi*qds%x(i,j))
 
       !build approximation
-      approx_sol(i-1,j-1) = 0.0_dp
+      approx_sol_x(i-1,j-1) = 0.0_dp
+      approx_sol_y(i-1,j-1) = 0.0_dp
       do l=0,q
         do k=0,q 
-          approx_sol(i-1,j-1) = approx_sol(i-1,j-1) + qds%u(k,l,nvar)*leg_mat(i-1,k)*leg_mat(j-1,l)
+          approx_sol_x(i-1,j-1) = approx_sol_x(i-1,j-1) + qds%u(k,l,nvar)*(leg_der_mat(i-1,k)&
+                                *leg_mat(j-1,l)*qds%rx(i,j) + leg_mat(i-1,k)*&
+                                leg_der_mat(j-1,l)*qds%sx(i,j))
+          approx_sol_y(i-1,j-1) = approx_sol_y(i-1,j-1) + qds%u(k,l,nvar)*(leg_der_mat(i-1,k)&
+                                *leg_mat(j-1,l)*qds%ry(i,j) + leg_mat(i-1,k)*&
+                                leg_der_mat(j-1,l)*qds%sy(i,j))        
         end do 
       end do 
     end do 
   end do
 
-  write(*,*) MAXVAL(ABS(true_sol - approx_sol))
-  ! write(*,*) true_sol 
-  !evaluate the approximation on the given grid
+  !print errors to terminal
+  write(*,'(2(E24.16))') MAXVAL(ABS(sol_x - approx_sol_x)),&
+                        MAXVAL(ABS(sol_y - approx_sol_y))
 
   call deallocate_quad(qds)
 
@@ -333,4 +339,4 @@ contains
     end subroutine assemble
 
 
-end program coeff2d
+end program derivative2d

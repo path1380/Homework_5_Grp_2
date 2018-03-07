@@ -84,7 +84,7 @@ contains
     allocate(qd%M(0:(q+1)**2*nvar-1,0:(q+1)**2*nvar-1))
     allocate(qd%S(0:(q+1)**2*nvar-1,0:(q+1)**2*nvar-1))
     ! allocate(qd%S(q**2*nvar,q**2*nvar))
-    allocate(qd%IPIV(q**2*nvar + 1)) ! DEAA CHECK ME, right size?
+    allocate(qd%IPIV((q+1)**2*nvar )) ! DEAA CHECK ME, right size?
 
     ! Allocate metric
     allocate(qd%jac(n_gll,n_gll))

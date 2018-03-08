@@ -1,7 +1,7 @@
 module problemsetup
   use type_defs
   implicit none
-  integer, parameter :: nvar = 2
+  integer, parameter :: nvar = 1
   integer, parameter :: q = 1
   integer, parameter :: nint = 10
   !number of intervals in theta and r
@@ -33,7 +33,8 @@ contains
     implicit none
     real(kind = dp) :: x,y
     real(kind = dp), parameter :: pi = acos(-1.d0)
-    init_u = sin(2.d0*pi*x)*sin(2.d0*pi*y)
+    !init_u = sin(2.d0*pi*x)*sin(2.d0*pi*y)
+    init_u = x*y + 2.0_dp
     return
     ! DEAA: Change to fit with your problem
   end function init_u

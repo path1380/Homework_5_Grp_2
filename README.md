@@ -6,12 +6,12 @@
   2. ~~Plot mapping~~
 * Part 2
   1. ~~Create perturbed grid~~
-  2. Calculate Jacobian and integrate
+  2. ~~Calculate Jacobian and integrate~~
   3. Report: Vary quadrature
   4. Report: Vary element count
 * Part 3
-  1. Finish Part 2
-  2. Compute area of annulus (vary integral for polar coords)
+  1. ~~Finish Part 2~~
+  2. ~~Compute area of annulus (vary integral for polar coords)~~
 * ~~Part 4~~
   1. ~~Program the Gordon-Hall mapping template~~
   2. ~~Generalize Gordon-Hall for curved edges~~

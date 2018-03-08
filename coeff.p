@@ -7,8 +7,7 @@
 $cmdFile="./Templates/problemsetup.f90.Template";
 $outFile="./src/problemsetup.f90";
 
-$num_degree = 2;
-$num_quad_max = 10;
+$num_quad_max = 30;
 $num_theta = 2;
 $num_r = 2;
 
@@ -17,19 +16,19 @@ for($q = 2;$q <= $num_quad_max; $q = $q+1){
 	open(FILE,"$cmdFile") || die "cannot open file $cmdFile!" ;
 	open(OUTFILE,"> $outFile") || die "cannot open file!" ;
 	while($line = <FILE>){
-		$line =~ s/\bNNNN\b/$q/;
-		$line =~ s/\bQQQQ\b/$num_degree/;
+		$line =~ s/\bQQQQ\b/$q/;
+		$line =~ s/\bNNNN\b/$q+4/;
 		$line =~ s/\bNTNT\b/$num_theta/;
 		$line =~ s/\bNRNR\b/$num_r/;
 		print OUTFILE $line;
 	}
 	close( OUTFILE );
 	close( FILE );
-	system("make -f Makefile_main");
-	system("./annulus_GH.x >> output.txt");
-	system("make -f Makefile_main clean");
+	system("make -f Makefile_coeffs");
+	system("./coeff2d.x >> output.txt");
+	system("make -f Makefile_coeffs clean");
 }
-system("matlab \"$@\" -nosplash -nodisplay < build/GHannulus.m");
+system("matlab \"$@\" -nosplash -nodisplay < build/coeff_plot.m");
 system("rm output.txt");
 
 exit

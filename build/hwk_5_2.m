@@ -2,7 +2,7 @@
 clc; close all; clear all;
 %% Create perturbed grid
 n_x = 10;
-n_y = n_x;
+n_y = 30;
 
 % Uniform grid
 x = linspace(-1,1,n_x);
@@ -10,8 +10,8 @@ y = fliplr(linspace(-1,1,n_y));
 [X,Y] = meshgrid(x,y);
 
 % Perturb grid
-Xp = X + rand(n_x,n_y)/25; 
-Yp = Y + rand(n_x,n_y)/25;
+Xp = X + rand(n_y,n_x)/25; 
+Yp = Y + rand(n_y,n_x)/25;
 
 % Clean up boundaries
 Xp(:,1) = -1;
@@ -20,14 +20,14 @@ Yp(1,:) = 1;
 Yp(n_y,:) = -1;
 
 plot(Xp,Yp, 'b-x', Xp', Yp', 'b-x')
-
+hold on
 % Iterate over elements on grid
 % Note: We take the small elements on the rs grid as the new element on xy
 %             Call the discretization of one element a subelement
 A_tot = 0;
 n_sub_elems = 3;
-for i = 1:n_x-1
-    for j = 1:n_y-1
+for i = 1:n_y-1
+    for j = 1:n_x-1
         % Define corners
         ul_x = Xp(i,j);
         ur_x = Xp(i,j+1);
@@ -41,6 +41,9 @@ for i = 1:n_x-1
         lr_y = Yp(i+1,j+1);
         yp = [ll_y lr_y ur_y ul_y];
 
+        % Visualize element being plotted
+        scatter(xp, yp, 50, 'g', 'filled')
+        
         % Pull discretization info
         [x_pts, y_pts, jac_arr, dA_arr] = rs2xy(xp,yp,n_sub_elems);
         

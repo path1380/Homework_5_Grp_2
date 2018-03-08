@@ -1,5 +1,5 @@
 # Homework 5 - 2D DG
-
+Please run perl scripts to verify plots/code. Results are documented in report.pdf.
 ## TODO
 * ~~Part 1~~
   1. ~~Find mapping~~
@@ -18,14 +18,10 @@
   3. ~~Compute area of half annulus~~
 * ~~Part 5~~
   1. ~~Compute area using line integrals~~
-* Part 6
-  1. Find 2D coefficients for approximating a function using Legendre fcns (ie: Hwk 3 in 2D)
-* Part 7
-  1. DG
+* ~~Part 6~~
+  1. ~~Find 2D coefficients for approximating a function using Legendre fcns (ie: Hwk 3 in 2D)~~
+* ~~Part 7~~
+  1. ~~DG~~
 * Additional
   1. Restructure Homework 4 code into new template
   2. Set up Twilight testing
-
-#### Part 1 Results
-![Reference Element](media/5-1-rs.png)
-![Reference Element](media/5-1-xy.png)

@@ -94,6 +94,19 @@ Y(r,s) = \beta_1 + \beta_2r + \beta_3s + \beta_4rs
 
 In order to verify this mapping, the area of a perturbed grid with straight-sided edges was calculated. 
 
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{.4\textwidth}
+    \centering
+  \includegraphics[width=\linewidth]{media/5-2-grid.eps}
+  \end{minipage}%
+  \begin{minipage}{.4\textwidth}
+    \centering
+  \includegraphics[width=\linewidth]{media/5-3-grid.eps}
+  \end{minipage}%
+  \caption{Perturbed grid and half annulus grid.}
+\end{figure}
+
 The value of area was found to be independent of the grid resolution as well as the degree of quadrature. This behavior is expected because here the element domain maps exactly to the reference domain.
 
 % \begin{figure}[H]
@@ -104,7 +117,7 @@ The value of area was found to be independent of the grid resolution as well as 
 %   \label{fig:spatDer}
 % \end{figure}
 
-A similar area calculation was carried out for elements with curvilinear sides. Here the area was not calculated exactly because the element domain does \textbf{not} exactly map to the reference domain. The error was seen to follow $min(n_r,n_s)$, where $(n_r, n_s)$ are the number of discretization points.
+A similar area calculation was carried out on a half annulus, where elements have curvilinear sides. Here the area was not calculated exactly because the element domain does \textbf{not} exactly map to the reference domain. The error was seen to follow $min(n_r,n_s)$, where $(n_r, n_s)$ are the number of discretization points.
 
 \begin{figure}[H]
   \centering
@@ -114,7 +127,6 @@ A similar area calculation was carried out for elements with curvilinear sides. 
   \label{fig:ref2}
 \end{figure}
 
-\noindent As before, we notice that we get steadily decreasing error until we achieve around $11-12$ digits of accuracy, after which roundoff errors steadily increase the error in the computation of the derivative. 
 
 \section{Mapping with Curvi-Linear Quadrilaterals}
 
